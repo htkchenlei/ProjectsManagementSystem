@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mx-auto mt-4">
+    <div class="flex flex-col md:flex-row gap-6">
+        <!-- 左侧：日历 -->
+        <div class="md:w-5/12">
+            <!-- 快速日期选择器 -->
+            <div class="text-center mt-3 mb-4">
+                <label for="datepicker" class="block text-sm font-medium text-gray-700 mr-2">快速选择日期:</label>
+                <input type="date" id="datepicker" value="{{ selected_date }}"
+                       class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                       onchange="window.location.href='{{ url_for('update_by_date') }}?date=' + this.value">
+            </div>
+
+            <!-- 日历格子优化版本 -->
+            <h2 class="text-center text-xl font-bold mb-3">项目更新日历</h2>
+            <div class="bg-white rounded-lg shadow p-3">
+                {% set days_in_month = last_day.day %}
+                {% set first_weekday = first_day.weekday() %}
+
+                <!-- 计算需要的周数 -->
+                {% set weeks_needed = ((days_in_month + first_weekday - 1) // 7) + 1 %}
+
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead>
+                            <tr>
+                                <th class="px-2 py-2 text-center bg-gray-100 font-bold text-gray-700">周一</th>
+                                <th class="px-2 py-2 text-center bg-gray-100 font-bold text-gray-700">周二</th>
+                                <th class="px-2 py-2 text-center bg-gray-100 font-bold text-gray-700">周三</th>
+                                <th class="px-2 py-2 text-center bg-gray-100 font-bold text-gray-700">周四</th>
+                                <th class="px-2 py-2 text-center bg-gray-100 font-bold text-gray-700">周五</th>
+                                <th class="px-2 py-2 text-center bg-yellow-100 font-bold text-gray-700">周六</th>
+                                <th class="px-2 py-2 text-center bg-yellow-100 font-bold text-gray-700">周日</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200">
+                            {% for week_num in range(weeks_needed) %}
+                                <tr>
+                                    {% for day_offset in range(7) %}
+                                        {% set day_num = week_num * 7 + day_offset - first_weekday + 1 %}
+
+                                        {% if day_num < 1 or day_num > days_in_month %}
+                                            <td class="text-center px-1 py-2 bg-gray-100 text-gray-400 opacity-50" style="height: 50px;">
+                                                <div class="py-2"></div>
+                                            </td>
+                                        {% else %}
+                                            {% set current_date = first_day.replace(day=day_num) %}
+                                            <td class="text-center px-1 py-2 align-middle" style="height: 50px;">
+                                                <a href="{{ url_for('update_by_date', date=current_date.strftime('%Y-%m-%d')) }}"
+                                                   class="block rounded-full p-1 h-full flex items-center justify-center
+                                                          {% if current_date.strftime('%Y-%m-%d') == selected_date %}bg-blue-600 text-white font-bold{% endif %}
+                                                          {% if current_date.strftime('%Y-%m-%d') == today %}border-2 border-red-500{% endif %}
+                                                          {% if current_date in has_updates_dates %}bg-green-500 text-white{% elif current_date.weekday() >= 5 %}bg-gray-100{% endif %}
+                                                          no-underline text-gray-800 relative">
+                                                    {{ day_num }}
+                                                    {% if current_date in has_updates_dates %}
+                                                        <span class="absolute bottom-1 right-1 w-2 h-2 bg-white rounded-full"></span>
+                                                    {% endif %}
+                                                </a>
+                                            </td>
+                                        {% endif %}
+                                    {% endfor %}
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- 右侧：更新信息 -->
+        <div class="md:w-7/12">
+            <div class="mt-4 md:mt-0">
+                <h3 class="text-xl font-bold mb-3">
+                    {% if selected_date == today %}
+                        <span class="text-red-500">今日</span> ({{ selected_date }}) 更新信息
+                    {% else %}
+                        {{ selected_date }} 更新信息
+                    {% endif %}
+                </h3>
+
+                {% if updates %}
+                    <div class="space-y-2">
+                        {% for update in updates %}
+                            <div class="bg-white rounded-lg shadow p-4">
+                                <div class="flex justify-between items-start">
+                                    <h5 class="font-bold text-lg">{{ update.name }}</h5>
+                                    <small class="text-gray-500">{{ update.update_time }}</small>
+                                </div>
+                                <p class="mt-2 text-gray-700">{{ update.update_content }}</p>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="bg-blue-50 text-blue-700 text-center py-3 rounded-lg" role="alert">
+                        该日期没有项目更新信息
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

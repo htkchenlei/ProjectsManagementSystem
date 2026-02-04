@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block title %}管理面板 - 项目管理系统{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- 页面标题 -->
+    <div class="mb-8 text-center">
+        <h1 class="text-3xl font-bold text-gray-900">管理面板</h1>
+        <p class="mt-2 text-gray-600">系统管理和项目概览</p>
+    </div>
+
+    <!-- 快捷操作按钮 -->
+    <div class="flex flex-wrap justify-center gap-4 mb-8">
+        <a
+            href="/add_project"
+            class="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-bold rounded-lg hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all shadow-lg"
+        >
+            创建项目
+        </a>
+        <a
+            href="/manage_user"
+            class="px-6 py-3 bg-gradient-to-r from-green-600 to-green-700 text-white font-bold rounded-lg hover:from-green-700 hover:to-green-800 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-all shadow-lg"
+        >
+            管理用户
+        </a>
+        <a
+            href="/deleted_projects"
+            class="px-6 py-3 bg-gradient-to-r from-red-600 to-red-700 text-white font-bold rounded-lg hover:from-red-700 hover:to-red-800 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-all shadow-lg"
+        >
+            已删除项目
+        </a>
+    </div>
+
+    <!-- 项目表格 -->
+    <div class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
+        <div class="bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-4">
+            <h2 class="text-xl font-bold text-white">所有项目</h2>
+        </div>
+        <table class="w-full">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-6 py-3 text-center text-sm font-semibold text-gray-700 w-[6%]">序号</th>
+                    <th class="px-6 py-3 text-center text-sm font-semibold text-gray-700 w-[20%]">项目名称</th>
+                    <th class="px-6 py-3 text-center text-sm font-semibold text-gray-700 w-[12%]">客户名称</th>
+                    <th class="px-6 py-3 text-center text-sm font-semibold text-gray-700 w-[18%]">规模</th>
+                    <th class="px-6 py-3 text-center text-sm font-semibold text-gray-700 w-[20%]">阶段</th>
+                    <th class="px-6 py-3 text-center text-sm font-semibold text-gray-700 w-[12%]">最近更新</th>
+                    <th class="px-6 py-3 text-center text-sm font-semibold text-gray-700 w-[17%]">操作</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200">
+                {% for project in projects %}
+                <tr class="hover:bg-blue-50 transition-colors">
+                    <td class="px-6 py-4 text-center text-sm font-medium text-gray-900">{{ project.serial_number }}</td>
+                    <td class="px-6 py-4 text-sm text-gray-900 font-medium text-center">{{ project.name }}</td>
+                    <td class="px-6 py-4 text-sm text-gray-900 text-center">{{ project.client_name }}</td>
+                    <td class="px-6 py-4 text-sm text-gray-600 text-center">{{ project.scale }} 万元</td>
+                    <td class="px-6 py-4 text-sm text-gray-600 text-center">{{ project.stage }}</td>
+                    <td class="px-6 py-4 text-sm text-gray-600 text-center">{{ project.update_date }}</td>
+                    <td class="px-6 py-4 text-center">
+                        <div class="flex gap-2 justify-center items-center">
+                            <a href="/project_details/{{ project.id }}" class="px-3 py-1.5 bg-blue-500 text-white text-sm rounded-lg hover:bg-blue-600 transition-colors font-medium whitespace-nowrap">详情</a>
+                            <a href="/edit_project/{{ project.id }}" class="px-3 py-1.5 bg-amber-500 text-white text-sm rounded-lg hover:bg-amber-600 transition-colors font-medium whitespace-nowrap">编辑</a>
+                            <form method="POST" action="/delete_project/{{ project.id }}" style="display: inline;">
+                                <button type="submit" class="px-3 py-1.5 bg-red-500 text-white text-sm rounded-lg hover:bg-red-600 transition-colors font-medium whitespace-nowrap" onclick="return confirm('确定要删除项目 {{ project.name }} 吗？')">删除</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

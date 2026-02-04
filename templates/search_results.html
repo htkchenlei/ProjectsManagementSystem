@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto mt-8 p-6 bg-white rounded-lg shadow-md">
+    <h3 class="text-xl font-bold text-gray-800 mb-4">搜索结果: "{{ search_term }}"</h3>
+
+    <!-- 搜索框 -->
+    <div class="mb-6">
+        <div class="flex items-center">
+            <input type="text" id="search_term" value="{{ search_term }}"
+                   class="flex-1 px-4 py-2 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                   placeholder="搜索项目名称">
+            <button id="search_btn"
+                    class="px-4 py-2 bg-blue-600 text-white rounded-r-lg hover:bg-blue-700 transition-colors font-medium">
+                搜索
+            </button>
+        </div>
+    </div>
+
+    <!-- 结果数量 -->
+    <div class="mb-4 text-gray-600">找到 {{ projects|length }} 个项目</div>
+
+    <!-- 项目表格 -->
+    <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-4 py-3 text-center text-sm font-semibold text-gray-700">序号</th>
+                    <th class="px-4 py-3 text-center text-sm font-semibold text-gray-700">名称</th>
+                    <th class="px-4 py-3 text-center text-sm font-semibold text-gray-700">规模</th>
+                    <th class="px-4 py-3 text-center text-sm font-semibold text-gray-700">阶段</th>
+                    <th class="px-4 py-3 text-center text-sm font-semibold text-gray-700">最近更新</th>
+                    <th class="px-4 py-3 text-center text-sm font-semibold text-gray-700">更新日期</th>
+                    <th class="px-4 py-3 text-center text-sm font-semibold text-gray-700">操作</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                {% for project in projects %}
+                <tr class="hover:bg-gray-50 transition-colors">
+                    <td class="px-4 py-3 text-center text-sm text-gray-700">{{ project.serial_number }}</td>
+                    <td class="px-4 py-3 text-sm text-gray-700 truncate max-w-xs">{{ project.name }}</td>
+                    <td class="px-4 py-3 text-center text-sm text-gray-700">{{ project.scale }}</td>
+                    <td class="px-4 py-3 text-center text-sm text-gray-700 truncate max-w-xs">{{ project.stage }}</td>
+                    <td class="px-4 py-3 text-sm text-gray-700 truncate max-w-xs">{{ project.update_content | default('暂无更新', true) }}</td>
+                    <td class="px-4 py-3 text-center text-sm text-gray-700">{{ project.update_date }}</td>
+                    <td class="px-4 py-3 text-center text-sm">
+                        <a href="{{ url_for('update_project', project_id=project.id) }}"
+                           class="px-3 py-1.5 bg-blue-500 text-white text-sm rounded-lg hover:bg-blue-600 transition-colors font-medium mr-2">
+                            更新
+                        </a>
+                        <a href="{{ url_for('project_details', project_id=project.id) }}"
+                           class="px-3 py-1.5 bg-green-500 text-white text-sm rounded-lg hover:bg-green-600 transition-colors font-medium">
+                            详情
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- 搜索按钮 JavaScript -->
+<script>
+    document.getElementById('search_btn').addEventListener('click', function(e) {
+        e.preventDefault();
+        const searchTerm = document.getElementById('search_term').value.trim();
+        if (searchTerm) {
+            window.location.href = `{{ url_for('search_results') }}?search_term=${encodeURIComponent(searchTerm)}`;
+        } else {
+            alert('请输入搜索关键词');
+        }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,170 @@
+{% extends "base.html" %}
+
+{% block title %}项目列表 - 项目管理系统{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- 顶部操作栏 -->
+    <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-6">
+        <!-- 左侧：筛选控件 -->
+        <div class="flex gap-3">
+            <form action="" method="get" class="inline">
+                <input type="hidden" name="show_completed" value="{% if show_completed %}0{% else %}1{% endif %}">
+                <button
+                    type="submit"
+                    class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-sm font-medium"
+                >
+                    {% if show_completed %}隐藏已完成{% else %}显示已完成{% endif %}
+                </button>
+            </form>
+            <a
+                href="/update_by_date"
+                class="px-4 py-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600 transition-colors shadow-sm font-medium"
+            >
+                更新日历
+            </a>
+        </div>
+
+        <!-- 中间：搜索框 -->
+        <div class="flex w-full lg:w-auto">
+            <input
+                type="text"
+                placeholder="搜索项目名称"
+                id="search_term"
+                class="flex-1 lg:w-80 px-4 py-2 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            >
+            <button
+                id="search_btn"
+                class="px-6 py-2 bg-blue-600 text-white rounded-r-lg hover:bg-blue-700 transition-colors font-medium"
+            >
+                搜索
+            </button>
+        </div>
+
+        <!-- 右侧：创建项目和导出按钮 -->
+        <div class="flex gap-3">
+            <a
+                href="/add_project"
+                class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors shadow-sm font-medium"
+            >
+                创建项目
+            </a>
+            <a
+                href="/export_projects_to_excel"
+                class="px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-900 transition-colors shadow-sm font-medium"
+            >
+                导出信息到 Excel
+            </a>
+        </div>
+    </div>
+
+    <!-- 项目表格 -->
+    <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200">
+        <table class="w-full table-fixed">
+            <thead class="bg-gradient-to-r from-blue-600 to-blue-700 text-white">
+                <tr>
+                    <th class="px-4 py-3 text-center text-sm font-semibold w-[5%]">序号</th>
+                    <th class="px-4 py-3 text-center text-sm font-semibold w-[18%]">名称</th>
+                    <th class="px-4 py-3 text-center text-sm font-semibold w-[10%]">规模</th>
+                    <th class="px-4 py-3 text-center text-sm font-semibold w-[20%]">阶段</th>
+                    <th class="px-4 py-3 text-center text-sm font-semibold w-[17%]">最近更新</th>
+                    <th class="px-4 py-3 text-center text-sm font-semibold w-[10%]">更新日期</th>
+                    <th class="px-4 py-3 text-center text-sm font-semibold w-[20%]">操作</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200">
+                {% for project in projects %}
+                <tr
+                    class="hover:bg-blue-50 transition-colors {% if project.days_since_update and project.days_since_update > 30 %}bg-amber-50{% endif %}"
+                >
+                    <td class="px-4 py-4 text-center text-sm font-medium text-gray-900 w-[5%]">
+                        {{ project.serial_number }}
+                    </td>
+                    <td class="px-4 py-4 text-sm w-[18%]">
+                        <div class="flex items-center justify-center gap-2">
+                            {% if project.days_since_update and project.days_since_update > 30 %}
+                            <span class="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-amber-100 text-amber-800 whitespace-nowrap">
+                                超期
+                            </span>
+                            {% endif %}
+                            <span class="truncate text-gray-900 font-medium" title="{{ project.name }}">
+                                {{ project.name }}
+                            </span>
+                        </div>
+                    </td>
+                    <td class="px-4 py-4 text-center text-sm text-gray-600 w-[10%]">
+                        {{ project.scale }}
+                    </td>
+                    <td class="px-4 py-4 text-center text-sm text-gray-600 w-[20%]">
+                        <span class="truncate block" title="{{ project.stage }}">
+                            {{ project.stage }}
+                        </span>
+                    </td>
+                    <td class="px-4 py-4 text-sm text-gray-600 w-[17%]">
+                        <span class="truncate block" title="{{ project.update_content | default('暂无更新', true) }}">
+                            {{ project.update_content | default('暂无更新', true) }}
+                        </span>
+                    </td>
+                    <td class="px-4 py-4 text-center text-sm text-gray-600 w-[10%]">
+                        {{ project.update_date }}
+                    </td>
+                    <td class="px-4 py-4 text-center w-[20%]">
+                        <div class="flex gap-2 justify-center">
+                            <a
+                                href="/update_project/{{ project.id }}"
+                                class="px-3 py-1.5 bg-blue-500 text-white text-sm rounded-lg hover:bg-blue-600 transition-colors font-medium whitespace-nowrap"
+                            >
+                                更新
+                            </a>
+                            <a
+                                href="/project_details/{{ project.id }}"
+                                class="px-3 py-1.5 bg-green-500 text-white text-sm rounded-lg hover:bg-green-600 transition-colors font-medium whitespace-nowrap"
+                            >
+                                详情
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 分页 -->
+    <div class="flex justify-center mt-6">
+        <nav class="flex gap-2">
+            {% for p in pagination.iter_pages() %}
+                {% if p %}
+                <a
+                    href="/index?page={{ p }}{% if show_completed %}&show_completed=1{% endif %}"
+                    class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-blue-50 transition-colors text-sm font-medium {% if p == pagination.page %}bg-blue-600 text-white{% else %}text-gray-700{% endif %}"
+                >
+                    {{ p }}
+                </a>
+                {% endif %}
+            {% endfor %}
+        </nav>
+    </div>
+</div>
+
+<!-- 搜索按钮JavaScript -->
+<script>
+    $(document).ready(function() {
+        $('#search_btn').click(function(e) {
+            e.preventDefault();
+            const searchTerm = $('#search_term').val().trim();
+            if (searchTerm) {
+                window.location.href = '/search_results?search_term=' + encodeURIComponent(searchTerm);
+            } else {
+                alert('请输入搜索关键词');
+            }
+        });
+
+        $('#search_term').keypress(function(e) {
+            if (e.which == 13) {
+                $('#search_btn').click();
+            }
+        });
+    });
+</script>
+{% endblock %}

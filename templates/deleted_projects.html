@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+
+{% block title %}已删除项目 - 项目管理系统{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- 页面标题 -->
+    <div class="mb-8 text-center">
+        <h1 class="text-3xl font-bold text-gray-900">已删除项目</h1>
+        <p class="mt-2 text-gray-600">查看和恢复已删除的项目</p>
+    </div>
+
+    <!-- Flash 消息 -->
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <div class="max-w-7xl mx-auto mb-6">
+                {% for message in messages %}
+                <div class="bg-blue-100 border-l-4 border-blue-500 text-blue-700 p-4 rounded-lg shadow flex items-center justify-between" role="alert">
+                    <div class="flex items-center">
+                        <svg class="h-5 w-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+                        </svg>
+                        <p class="font-medium">{{ message }}</p>
+                    </div>
+                    <button type="button" class="ml-auto text-blue-500 hover:text-blue-700" onclick="this.parentElement.parentElement.remove()">
+                        <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                        </svg>
+                    </button>
+                </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <!-- 项目表格 -->
+    {% if projects %}
+    <div class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
+        <div class="bg-gradient-to-r from-red-600 to-red-700 px-6 py-4">
+            <h2 class="text-xl font-bold text-white">已删除项目列表</h2>
+        </div>
+        <table class="w-full">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-6 py-3 text-center text-sm font-semibold text-gray-700 w-[10%]">序号</th>
+                    <th class="px-6 py-3 text-center text-sm font-semibold text-gray-700 w-[45%]">项目名称</th>
+                    <th class="px-6 py-3 text-center text-sm font-semibold text-gray-700 w-[10%]">项目金额</th>
+                    <th class="px-6 py-3 text-center text-sm font-semibold text-gray-700 w-[25%]">项目阶段</th>
+                    <th class="px-6 py-3 text-center text-sm font-semibold text-gray-700 w-[10%]">操作</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200">
+                {% for project in projects %}
+                <tr class="hover:bg-red-50 transition-colors">
+                    <td class="px-6 py-4 text-center text-sm font-medium text-gray-900">{{ project.serial_number }}</td>
+                    <td class="px-6 py-4 text-center text-sm text-gray-900 font-medium">{{ project.name }}</td>
+                    <td class="px-6 py-4 text-center text-sm text-gray-900">{{ project.scale }} 万元</td>
+                    <td class="px-6 py-4 text-center text-sm text-gray-600">{{ project.stage }}</td>
+                    <td class="px-6 py-4 text-center">
+                        <form method="POST" action="{{ url_for('restore_project', project_id=project.id) }}" style="display: inline;">
+                            <button
+                                type="submit"
+                                class="px-4 py-2 bg-gradient-to-r from-green-600 to-green-700 text-white text-xs font-bold rounded-lg hover:from-green-700 hover:to-green-800 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-all shadow-md"
+                                onclick="return confirm('确定要恢复项目 {{ project.name }} 吗？')"
+                            >
+                                恢复
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <!-- 空状态 -->
+    <div class="bg-white rounded-xl shadow-lg border border-gray-200 p-12 text-center">
+        <svg
+            class="mx-auto h-16 w-16 text-gray-400 mb-4"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+        >
+            <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+            />
+        </svg>
+        <h3 class="text-lg font-semibold text-gray-900 mb-2">暂无已删除项目</h3>
+        <p class="text-gray-600">当前没有已删除的项目，所有项目都保持完好。</p>
+    </div>
+    {% endif %}
+
+    <!-- 返回链接 -->
+    <div class="mt-6 text-center">
+        <a
+            href="/admin"
+            class="text-blue-600 hover:text-blue-700 font-medium transition-colors"
+        >
+            ← 返回管理面板
+        </a>
+    </div>
+</div>
+{% endblock %}

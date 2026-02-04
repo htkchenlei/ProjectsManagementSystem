@@ -1,0 +1,276 @@
+{% extends "base.html" %}
+
+{% block title %}统计分析 - 项目管理系统{% endblock %}
+
+{% block extra_head %}
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- 页面标题 -->
+    <div class="mb-8 text-center">
+        <h1 class="text-3xl font-bold text-gray-900">项目统计分析</h1>
+        <p class="mt-2 text-gray-600">查看项目的各项统计数据</p>
+    </div>
+
+    <!-- 统计图表区域 -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <!-- 各省份项目金额分布 -->
+        <div class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
+            <div class="bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-4">
+                <h2 class="text-lg font-bold text-white">各省份项目金额分布</h2>
+            </div>
+            <div class="p-6">
+                <canvas id="provinceChart" height="300"></canvas>
+            </div>
+        </div>
+
+        <!-- 各阶段项目数量 -->
+        <div class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
+            <div class="bg-gradient-to-r from-green-600 to-green-700 px-6 py-4">
+                <h2 class="text-lg font-bold text-white">各阶段项目数量</h2>
+            </div>
+            <div class="p-6">
+                <canvas id="stageChart" height="300"></canvas>
+            </div>
+        </div>
+
+        <!-- 月度新增项目趋势 -->
+        <div class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
+            <div class="bg-gradient-to-r from-purple-600 to-purple-700 px-6 py-4">
+                <h2 class="text-lg font-bold text-white">月度新增项目趋势</h2>
+            </div>
+            <div class="p-6">
+                <canvas id="monthlyChart" height="300"></canvas>
+            </div>
+        </div>
+
+        <!-- 项目规模分布 -->
+        <div class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
+            <div class="bg-gradient-to-r from-amber-600 to-amber-700 px-6 py-4">
+                <h2 class="text-lg font-bold text-white">项目规模分布</h2>
+            </div>
+            <div class="p-6">
+                <canvas id="scaleChart" height="300"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- 数据表格 -->
+    <div class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
+        <div class="bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-4">
+            <h2 class="text-xl font-bold text-white">详细统计数据</h2>
+        </div>
+        <div class="p-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- 省份数据表格 -->
+                <div>
+                    <h3 class="text-lg font-semibold text-center mb-4 text-gray-900">
+                        各省份统计
+                    </h3>
+                    <div class="border border-gray-200 rounded-lg overflow-hidden">
+                        <table class="w-full">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-4 py-3 text-center text-sm font-semibold text-gray-700">
+                                        省份
+                                    </th>
+                                    <th class="px-4 py-3 text-center text-sm font-semibold text-gray-700">
+                                        项目金额 (万元)
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200">
+                                {% for item in province_data %}
+                                <tr class="hover:bg-gray-50 transition-colors">
+                                    <td class="px-4 py-3 text-center text-sm text-gray-900">
+                                        {{ item.province }}
+                                    </td>
+                                    <td class="px-4 py-3 text-center text-sm text-gray-900 font-medium">
+                                        {{ "{:,.2f}".format(item.total_scale) }}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 阶段数据表格 -->
+                <div>
+                    <h3 class="text-lg font-semibold text-center mb-4 text-gray-900">
+                        各阶段统计
+                    </h3>
+                    <div class="border border-gray-200 rounded-lg overflow-hidden">
+                        <table class="w-full">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-4 py-3 text-center text-sm font-semibold text-gray-700">
+                                        阶段
+                                    </th>
+                                    <th class="px-4 py-3 text-center text-sm font-semibold text-gray-700">
+                                        项目数量
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200">
+                                {% for item in stage_data %}
+                                <tr class="hover:bg-gray-50 transition-colors">
+                                    <td class="px-4 py-3 text-center text-sm text-gray-900">
+                                        {{ item.stage_name }}
+                                    </td>
+                                    <td class="px-4 py-3 text-center text-sm text-gray-900 font-medium">
+                                        {{ item.project_count }}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_scripts %}
+<script>
+    // 各省份项目金额饼图
+    const provinceCtx = document.getElementById('provinceChart');
+    const provinceLabels = [{% for item in province_data %}"{{ item.province }}",{% endfor %}];
+    const provinceData = [{% for item in province_data %}{{ item.total_scale }},{% endfor %}];
+
+    new Chart(provinceCtx, {
+        type: 'pie',
+        data: {
+            labels: provinceLabels,
+            datasets: [{
+                data: provinceData,
+                backgroundColor: [
+                    '#3B82F6', '#10B981', '#F59E0B', '#EF4444',
+                    '#8B5CF6', '#EC4899', '#6366F1', '#14B8A6'
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'right',
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const label = context.label || '';
+                            const value = context.raw || 0;
+                            return `${label}: ${value.toLocaleString()} 万元`;
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    // 各阶段项目数量柱状图
+    const stageCtx = document.getElementById('stageChart');
+    const stageLabels = [{% for item in stage_data %}"{{ item.stage_name }}",{% endfor %}];
+    const stageData = [{% for item in stage_data %}{{ item.project_count }},{% endfor %}];
+
+    new Chart(stageCtx, {
+        type: 'bar',
+        data: {
+            labels: stageLabels,
+            datasets: [{
+                label: '项目数量',
+                data: stageData,
+                backgroundColor: [
+                    '#3B82F6', '#10B981', '#F59E0B', '#EF4444',
+                    '#8B5CF6', '#EC4899', '#6366F1', '#14B8A6'
+                ],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1
+                    }
+                }
+            }
+        }
+    });
+
+    // 月度新增项目趋势图
+    const monthlyCtx = document.getElementById('monthlyChart');
+    const monthlyLabels = ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'];
+    const monthlyData = [{% for item in monthly_data %}{{ item.project_count }},{% endfor %}];
+
+    new Chart(monthlyCtx, {
+        type: 'line',
+        data: {
+            labels: monthlyLabels,
+            datasets: [{
+                label: '新增项目数量',
+                data: monthlyData,
+                borderColor: '#3B82F6',
+                backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                fill: true,
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1
+                    }
+                }
+            }
+        }
+    });
+
+    // 项目规模分布
+    const scaleCtx = document.getElementById('scaleChart');
+    const scaleLabels = [{% for item in scale_data %}"{{ item.scale_range }}",{% endfor %}];
+    const scaleData = [{% for item in scale_data %}{{ item.project_count }},{% endfor %}];
+
+    new Chart(scaleCtx, {
+        type: 'doughnut',
+        data: {
+            labels: scaleLabels,
+            datasets: [{
+                data: scaleData,
+                backgroundColor: [
+                    '#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6'
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'right',
+                }
+            }
+        }
+    });
+</script>
+{% endblock %}
+{% endblock %}

@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block title %}新增用户 - 项目管理系统{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- 页面标题 -->
+    <div class="mb-8 text-center">
+        <h1 class="text-3xl font-bold text-gray-900">新增用户</h1>
+        <p class="mt-2 text-gray-600">添加新的系统用户</p>
+    </div>
+
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <div class="max-w-4xl mx-auto mb-6">
+                {% for message in messages %}
+                <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded-lg shadow" role="alert">
+                    <p class="font-medium">{{ message }}</p>
+                </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <!-- 添加用户表单卡片 -->
+    <div class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden max-w-4xl mx-auto">
+        <div class="bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-4">
+            <h2 class="text-xl font-bold text-white">添加用户</h2>
+        </div>
+        <div class="p-8">
+            <form method="post" class="mx-auto" style="width: fit-content;">
+                <div class="flex flex-col sm:flex-row items-center gap-4">
+                    <label
+                        for="username"
+                        class="text-sm font-semibold text-gray-700 w-24"
+                    >
+                        用户名:
+                    </label>
+                    <input
+                        id="username"
+                        name="username"
+                        type="text"
+                        required
+                        class="flex-1 sm:w-80 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                        placeholder="请输入用户名"
+                    >
+                    <button
+                        type="submit"
+                        class="px-8 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-bold rounded-lg hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all shadow-lg whitespace-nowrap"
+                    >
+                        添加
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 返回链接 -->
+    <div class="mt-6 text-center">
+        <a
+            href="/manage_user"
+            class="text-blue-600 hover:text-blue-700 font-medium transition-colors"
+        >
+            ← 返回用户管理
+        </a>
+    </div>
+</div>
+{% endblock %}

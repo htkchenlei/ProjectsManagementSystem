@@ -1,0 +1,161 @@
+{% extends "base.html" %}
+
+{% block title %}项目更新 - 项目管理系统{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- 页面标题 -->
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-900">项目更新</h1>
+        <p class="mt-2 text-gray-600">项目: <span class="font-semibold">{{ project.name }}</span></p>
+    </div>
+
+    <!-- 项目基本信息卡片 -->
+    <div class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden mb-6">
+        <div class="bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-4">
+            <h2 class="text-xl font-bold text-white">项目基本信息</h2>
+        </div>
+        <div class="p-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- 左侧信息 -->
+                <div class="space-y-3">
+                    <div class="flex items-start">
+                        <span class="text-sm font-semibold text-gray-700 w-24 flex-shrink-0">项目名称:</span>
+                        <span class="text-gray-900 font-medium">{{ project.name }}</span>
+                    </div>
+                    <div class="flex items-start">
+                        <span class="text-sm font-semibold text-gray-700 w-24 flex-shrink-0">客户名称:</span>
+                        <span class="text-gray-900">{{ project.client_name }}</span>
+                    </div>
+                    <div class="flex items-start">
+                        <span class="text-sm font-semibold text-gray-700 w-24 flex-shrink-0">项目规模:</span>
+                        <span class="text-gray-900">{{ project.scale }} 万元</span>
+                    </div>
+                    <div class="flex items-start">
+                        <span class="text-sm font-semibold text-gray-700 w-24 flex-shrink-0">销售:</span>
+                        <span class="text-gray-900">{{ project.sales_person }}</span>
+                    </div>
+                    <div class="flex items-start">
+                        <span class="text-sm font-semibold text-gray-700 w-24 flex-shrink-0">开始日期:</span>
+                        <span class="text-gray-900">{{ project.start_date }}</span>
+                    </div>
+                </div>
+
+                <!-- 右侧信息 -->
+                <div class="space-y-3">
+                    <div class="flex items-start">
+                        <span class="text-sm font-semibold text-gray-700 w-24 flex-shrink-0">省份:</span>
+                        <span class="text-gray-900">{{ project.province or '-' }}</span>
+                    </div>
+                    <div class="flex items-start">
+                        <span class="text-sm font-semibold text-gray-700 w-24 flex-shrink-0">城市:</span>
+                        <span class="text-gray-900">{{ project.city or '-' }}</span>
+                    </div>
+                    <div class="flex items-start">
+                        <span class="text-sm font-semibold text-gray-700 w-24 flex-shrink-0">行政区:</span>
+                        <span class="text-gray-900">{{ project.district or '-' }}</span>
+                    </div>
+                    <div class="flex items-start">
+                        <span class="text-sm font-semibold text-gray-700 w-24 flex-shrink-0">项目阶段:</span>
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+                            {{ project.stage }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 历史更新卡片 -->
+    <div class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden mb-6">
+        <div class="bg-gradient-to-r from-green-600 to-green-700 px-6 py-4">
+            <h2 class="text-xl font-bold text-white">历史更新</h2>
+        </div>
+        <div class="p-6">
+            {% if updates %}
+            <div class="space-y-4">
+                {% for update in updates %}
+                <div class="rounded-lg p-4 border-l-4 {% if update.is_important %}bg-red-50 border-red-500{% else %}bg-gray-50 border-blue-500{% endif %}">
+                    <div class="flex items-center justify-between mb-2">
+                        <div class="flex items-center gap-2">
+                            <span class="inline-flex items-center px-2 py-1 rounded text-xs font-medium {% if update.is_important %}bg-red-100 text-red-800{% else %}bg-blue-100 text-blue-800{% endif %}">
+                                {{ update.update_date }}
+                            </span>
+                            <span class="text-sm font-semibold text-gray-700">@{{ update.username }}</span>
+                            {% if update.is_important %}
+                            <span class="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-red-600 text-white">
+                                重要
+                            </span>
+                            {% endif %}
+                        </div>
+                        <span class="text-xs text-gray-500">{{ update.update_time }}</span>
+                    </div>
+                    <p class="text-sm {% if update.is_important %}text-red-900 font-medium{% else %}text-gray-900{% endif %}">
+                        {{ update.update_content }}
+                    </p>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="text-center py-8 text-gray-500">
+                <svg class="mx-auto h-12 w-12 text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
+                <p class="mt-2 text-sm">暂无更新内容</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- 更新表单卡片 -->
+    <div class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
+        <div class="bg-gradient-to-r from-purple-600 to-purple-700 px-6 py-4">
+            <h2 class="text-xl font-bold text-white">添加新更新</h2>
+        </div>
+        <div class="p-6">
+            <form method="post">
+                <div class="mb-4">
+                    <div class="flex items-center justify-between mb-2">
+                        <label
+                            for="update_content"
+                            class="block text-sm font-semibold text-gray-700"
+                        >
+                            更新内容 <span class="text-red-500">*</span>
+                        </label>
+                        <div class="flex items-center">
+                            <input
+                                id="is_important"
+                                name="is_important"
+                                type="checkbox"
+                                class="w-4 h-4 text-red-600 border-gray-300 rounded focus:ring-red-500"
+                            >
+                            <label
+                                for="is_important"
+                                class="ml-2 text-sm font-medium text-red-600"
+                            >
+                                重要更新
+                            </label>
+                        </div>
+                    </div>
+                    <textarea
+                        id="update_content"
+                        name="update_content"
+                        required
+                        rows="4"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all resize-none"
+                        placeholder="请输入更新内容..."
+                    ></textarea>
+                </div>
+                <div class="flex justify-center">
+                    <button
+                        type="submit"
+                        class="px-8 py-3 bg-gradient-to-r from-purple-600 to-purple-700 text-white font-bold rounded-lg hover:from-purple-700 hover:to-purple-800 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition-all shadow-lg"
+                    >
+                        提交更新
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
