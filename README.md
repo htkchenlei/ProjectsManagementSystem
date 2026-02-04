@@ -198,17 +198,10 @@ flask-tailwind/
 | 统计分析 | `/statistics` | 数据统计图表 | ✅ 完成 |
 | 高级搜索 | `/search_by_conditions` | 多条件搜索 | ✅ 完成 |
 | 基础模板 | `base.html` | 统一布局和导航 | ✅ 完成 |
-
-### 待完成的页面（可选）
-
-以下页面根据需要可以创建，样式参考已完成页面：
-
-| 页面 | 路由 | 功能 | 参考样式 |
-|------|------|------|----------|
-| 编辑项目 | `/edit_project/<id>` | 编辑项目信息 | `add_project.html` |
-| 按日期搜索 | `/search_by_date` | 日历视图搜索 | `index.html` 卡片样式 |
-| 搜索结果 | `/search_results` | 显示搜索结果 | `index.html` |
-| 导出 Excel | `/export_projects_to_excel` | 导出数据 | - |
+| 编辑项目 | `/edit_project/<id>` | 编辑项目信息 | `add_project.html` |✅ 完成 |
+| 按日期搜索 | `/search_by_date` | 日历视图搜索 | `index.html` 卡片样式 |✅ 完成 |
+| 搜索结果 | `/search_results` | 显示搜索结果 | `index.html` |✅ 完成 |
+| 导出 Excel | `/export_projects_to_excel` | 导出数据 | ✅ 完成 | |
 
 ## ✅ 项目状态
 
@@ -275,61 +268,6 @@ flask-tailwind/
 - 表头: `bg-gradient-to-r from-blue-600 to-blue-700 text-white`
 - 表格行: `hover:bg-blue-50 transition-colors`
 - 分隔线: `divide-y divide-gray-200`
-
-## 🔄 从原有模板迁移
-
-如果你需要创建剩余的页面模板，可以按照以下步骤：
-
-1. **参考原有 HTML 模板**
-   - 查看原有的 HTML 文件结构
-   - 识别需要保留的元素
-
-2. **应用 Tailwind CSS 样式**
-   - 使用 `extends "base.html"` 继承基础布局
-   - 将 Bootstrap 类名替换为 Tailwind 类名
-   - 参考已完成页面的样式模式
-
-3. **保留 Jinja2 语法**
-   - 保持 `{% %}` 模板语法不变
-   - 保持 `{{ }}` 变量输出不变
-   - 保持 `{% for %}` 循环结构
-
-4. **测试功能**
-   - 确保表单提交正常
-   - 确保数据显示正确
-   - 确保链接跳转正确
-
-## 📝 开发指南
-
-### 添加新页面
-
-1. 在 `templates/` 目录下创建新的 HTML 文件
-2. 继承 `base.html`: `{% extends "base.html" %}`
-3. 设置页面标题: `{% block title %}页面名称{% endblock %}`
-4. 添加内容: `{% block content %}{% endblock %}`
-
-### 添加新路由
-
-在 `app.py` 中添加路由函数：
-
-```python
-@app.route('/new_page')
-def new_page():
-    if 'user_id' not in session:
-        return redirect(url_for('login'))
-    return render_template('new_page.html')
-```
-
-### 数据库查询
-
-```python
-conn = get_db_connection()
-cursor = conn.cursor(dictionary=True)
-cursor.execute("SELECT * FROM Projects WHERE is_deleted = FALSE")
-results = cursor.fetchall()
-cursor.close()
-conn.close()
-```
 
 ## 🐛 常见问题
 
